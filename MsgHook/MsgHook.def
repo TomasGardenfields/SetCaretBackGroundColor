@@ -1,0 +1,10 @@
+; MsgHook.def : DLL 用のモジュール パラメータ宣言
+
+LIBRARY      "MsgHook"
+DESCRIPTION  'MsgHook Windows Dynamic Link Library'
+
+EXPORTS
+    ; 明示的なエクスポートはここへ記述できます
+
+SECTIONS
+	.CHookData	READ WRITE SHARED

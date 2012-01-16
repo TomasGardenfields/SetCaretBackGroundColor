@@ -1,0 +1,6 @@
+Internet Explorer_Server
+NotifyIconOverflowWindow
+MozillaWindowClass
+Progman
+AfxFrameOrView42
+Shell_TrayWnd
