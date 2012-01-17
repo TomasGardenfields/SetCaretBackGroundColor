@@ -230,7 +230,7 @@ BEGIN
         MENUITEM "Exit",                        ID_MENUITEM_TRAY_EXIT
         MENUITEM "Restart",                     ID_MENUITEM_TRAY_RESTART
         MENUITEM SEPARATOR
-        MENUITEM "Config",                      ID_MENUITEM_TRAY_CONFIG
+        MENUITEM "Look && Feel",                ID_MENUITEM_TRAY_CONFIG
         MENUITEM "Ignore List",                 ID_MENUITEM_TRAY_IGNORE
         MENUITEM SEPARATOR
         MENUITEM "Cancel",                      ID_MENUITEM_TRAY_CANCEL

@@ -76,9 +76,14 @@ BOOL CConfigDialog::OnInitDialog()
 	
 	// ダイアログ内コントロールの初期化
 	this->m_SliderTransparentOpen.SetRange( 1, 255, FALSE );
+	this->m_SliderTransparentOpen.SetPageSize( 10 );
 	this->m_SliderTransparentClose.SetRange( 1, 255, FALSE );
+	this->m_SliderTransparentOpen.SetPageSize( 10 );
+
 	this->m_SliderBlinkFrameLength.SetRange( 1, 255, FALSE );
+	this->m_SliderBlinkFrameLength.SetPageSize( 10 );
 	this->m_SliderBlinkCount.SetRange( 1, 16, FALSE );
+	this->m_SliderBlinkCount.SetPageSize( 1 );
 
 	this->m_SliderBlinkFrameLength.SetPos( this->m_refConfig.m_FrameLength );
 	this->m_strFrameLength.Format( "%d", this->m_refConfig.m_FrameLength );

@@ -460,6 +460,8 @@ LRESULT CSetCaretBackGroundColorDlg::WindowProc(UINT message, WPARAM wParam, LPA
 	return CDialog::WindowProc(message, wParam, lParam);
 }
 
+/* ////////////////////////////////////////////////////// */
+// 
 BOOL CSetCaretBackGroundColorDlg::ResizeMainWindow( HWND i_hWndCurrent )
 {
 	TRACE1( "ResizeMainWindow: %08X \n", i_hWndCurrent );
@@ -477,6 +479,7 @@ BOOL CSetCaretBackGroundColorDlg::ResizeMainWindow( HWND i_hWndCurrent )
 		TRACE0( "ResizeMainWindow Not Excluded(Offspring)\n" );
 	}
 
+	/* ------------------------------------------------------ */
 	// 無視対象クラス名のウィンドウを除外
 	CString strClassName;
 	::GetClassName( i_hWndCurrent, strClassName.GetBuffer( 256 ), 256 );
@@ -505,6 +508,7 @@ BOOL CSetCaretBackGroundColorDlg::ResizeMainWindow( HWND i_hWndCurrent )
 }
 
 /* ////////////////////////////////////////////////////// */
+// 
 BOOL CSetCaretBackGroundColorDlg::SetTarget( HWND i_hWndTarget, BYTE i_Transparency, UINT i_nIDEvent )
 {
 	TRACE0("SetTarget() begin ");
