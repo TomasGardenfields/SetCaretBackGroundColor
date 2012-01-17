@@ -13,7 +13,10 @@ StConfig::StConfig()
 
 	this->m_FrameLength = 10;
 	this->m_BlinkCount = 1;
+
+	this->m_BlinkVirtualKey = VK_NONAME;
 	
+	this->m_IgnoreClassNameFile = "";
 	this->m_IgnoreClassName.RemoveAll();
 }
 
@@ -34,6 +37,9 @@ StConfig::StConfig( const StConfig& i_refConfig )
 	this->m_FrameLength = i_refConfig.m_FrameLength;
 	this->m_BlinkCount = i_refConfig.m_BlinkCount;
 
+	this->m_BlinkVirtualKey = i_refConfig.m_BlinkVirtualKey;
+
+	this->m_IgnoreClassNameFile = i_refConfig.m_IgnoreClassNameFile;
 	this->m_IgnoreClassName.RemoveAll();
 	this->m_IgnoreClassName.SetSize( i_refConfig.m_IgnoreClassName.GetSize() );
 	//this->m_IgnoreClassName.Copy( i_refConfig.m_IgnoreClassName );

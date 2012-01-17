@@ -38,6 +38,7 @@ void CConfigDialog::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CConfigDialog)
+	DDX_Control(pDX, IDC_HOTKEY_CONFIG_MANUAL_BLINK, m_hkCtrlManualBlink);
 	DDX_Control(pDX, IDC_SLIDER_BLINK_FADE_LENGTH, m_SliderBlinkFrameLength);
 	DDX_Control(pDX, IDC_STATIC_PICTURE_COLOR_CLOSE, m_StaticColorClose);
 	DDX_Control(pDX, IDC_STATIC_PICTURE_COLOR_OPEN, m_StaticColorOpen);
@@ -64,6 +65,7 @@ BEGIN_MESSAGE_MAP(CConfigDialog, CDialog)
 	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLIDER_BLINK_FADE_LENGTH, OnReleasedcaptureSliderBlinkFadeLength)
 	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLIDER_BLINK_COUNT, OnReleasedcaptureSliderBlinkCount)
 	ON_BN_CLICKED(IDC_BUTTON_CLOSE, OnButtonClose)
+	ON_BN_CLICKED(IDC_BUTTON_CONFIG_MANUAL_BLINK_SET, OnButtonConfigManualBlinkSet)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -78,7 +80,7 @@ BOOL CConfigDialog::OnInitDialog()
 	this->m_SliderTransparentOpen.SetRange( 1, 255, FALSE );
 	this->m_SliderTransparentOpen.SetPageSize( 10 );
 	this->m_SliderTransparentClose.SetRange( 1, 255, FALSE );
-	this->m_SliderTransparentOpen.SetPageSize( 10 );
+	this->m_SliderTransparentClose.SetPageSize( 10 );
 
 	this->m_SliderBlinkFrameLength.SetRange( 1, 255, FALSE );
 	this->m_SliderBlinkFrameLength.SetPageSize( 10 );
@@ -98,6 +100,12 @@ BOOL CConfigDialog::OnInitDialog()
 	this->m_SliderTransparentClose.SetPos( (BYTE)this->m_refConfig.m_TransparencyClose );
 	this->m_strColorClose.Format( "%d", this->m_refConfig.m_TransparencyClose );
 	this->m_ColorBrushClose.CreateSolidBrush( this->m_refConfig.m_BackGroundColorClose );
+
+	this->m_hkCtrlManualBlink.SetHotKey( this->m_refConfig.m_BlinkVirtualKey, NULL );
+
+	this->m_hkCtrlManualBlink.SetRules(
+		HKCOMB_A | HKCOMB_C | HKCOMB_CA | HKCOMB_S | HKCOMB_SA | HKCOMB_SC | HKCOMB_SCA,
+		HOTKEYF_EXT );
 
 	this->UpdateData( FALSE );
 	return TRUE;  // コントロールにフォーカスを設定しないとき、戻り値は TRUE となります
@@ -259,3 +267,18 @@ void CConfigDialog::OnReleasedcaptureSliderBlinkCount(NMHDR* pNMHDR, LRESULT* pR
 	*pResult = 0;
 }
 
+
+void CConfigDialog::OnButtonConfigManualBlinkSet() 
+{
+	// 仮想キーコード/修飾キーを取得しコンフィグへ設定
+	// イベントハンドラ側で修飾キー押下有無に対応できない為、仮想キーコードのみ設定
+
+	this->UpdateData( TRUE );
+
+	WORD wVirtualkey;
+	WORD wModKey;
+
+	this->m_hkCtrlManualBlink.GetHotKey( wVirtualkey, wModKey );
+
+	this->m_refConfig.m_BlinkVirtualKey = wVirtualkey;
+}

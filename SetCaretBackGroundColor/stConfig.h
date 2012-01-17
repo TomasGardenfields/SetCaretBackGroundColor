@@ -29,6 +29,9 @@ public:
 	DWORD	m_FrameLength;			// フェード効果のフレーム(時間)の長さ
 	BYTE	m_BlinkCount;			// フェード効果の点滅回数
 
-	CStringArray m_IgnoreClassName;	// 無視するクラス名リスト
+	UINT	m_BlinkVirtualKey;		// 手動点滅用仮想キー
+
+	CString m_IgnoreClassNameFile;	// 無視クラス名リストファイル名
+	CStringArray m_IgnoreClassName;	// 無視クラス名リスト
 
 };

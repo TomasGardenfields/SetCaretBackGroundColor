@@ -27,7 +27,9 @@ CSetCaretBackGroundColorDlg::CSetCaretBackGroundColorDlg( StConfig& i_refConfig,
 		// メモ: この位置に ClassWizard によってメンバの初期化が追加されます。
 	//}}AFX_DATA_INIT
 	// メモ: LoadIcon は Win32 の DestroyIcon のサブシーケンスを要求しません。
+
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
+
 	this->m_boExisted = FALSE;
 	this->m_boTransparent = FALSE;
 	this->m_AnimationFrame = 0;
@@ -88,6 +90,7 @@ BOOL CSetCaretBackGroundColorDlg::OnInitDialog()
 	SetIcon(m_hIcon, TRUE);			// 大きいアイコンを設定
 	SetIcon(m_hIcon, FALSE);		// 小さいアイコンを設定
 
+	// 設定ダイアログ生成
 	this->m_pConfigDlg = new CConfigDialog( this->m_refConfig, this );
 	if ( this->m_pConfigDlg == NULL )
 	{
@@ -99,7 +102,9 @@ BOOL CSetCaretBackGroundColorDlg::OnInitDialog()
 	{
 		return FALSE;
 	}
-	
+
+	// ウィンドウキャプション変更
+	// タイトルバーが無い為手動で設定
 	this->SetWindowText( "SetCaretBackGroundColor" );
 
 	// TODO: 特別な初期化を行う時はこの場所に追加してください。
@@ -129,13 +134,14 @@ int CSetCaretBackGroundColorDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	this->ShowWindow( SW_SHOW );
 
-//	this->EnableAlpha( WS_EX_LAYERED, RGB(255,128,64), 64, LWA_ALPHA );	// 見た目のみ透過
-	this->EnableAlpha( WS_EX_LAYERED | WS_EX_TRANSPARENT, NULL, 0, LWA_ALPHA );	// マウスメッセージ透過
+	// マウスメッセージ透過
+	this->EnableAlpha( WS_EX_LAYERED | WS_EX_TRANSPARENT, NULL, 0, LWA_ALPHA );
+
 	// ウィンドウを最善面に配置
 	this->SetWindowPos( &CWnd::wndTopMost, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
 
-	m_BackGroundBrushOpen.CreateSolidBrush( this->m_refConfig.m_BackGroundColorOpen );
-	m_BackGroundBrushClose.CreateSolidBrush( this->m_refConfig.m_BackGroundColorClose );
+	// ウィンドウ描画用ブラシ作成
+	this->UpdateWindowBrush();
 
 	this->m_hWndTarget = NULL;
 	this->m_Hook.Set( this->m_hWnd );
@@ -283,7 +289,7 @@ LRESULT CSetCaretBackGroundColorDlg::OnNotifyIconEvents( WPARAM wParam, LPARAM l
 	case WM_RBUTTONDOWN:
 		// 右クリックしたときの処理
 	
-//		this->m_Hook.Pause( TRUE );
+		this->m_Hook.Pause( TRUE );
 		this->TerminateAnimation();
 
 		// タスクトレイメニュー表示
@@ -304,7 +310,7 @@ LRESULT CSetCaretBackGroundColorDlg::OnNotifyIconEvents( WPARAM wParam, LPARAM l
 
 		PostMessage( WM_NULL );
 
-//		this->m_Hook.Pause( FALSE );
+		this->m_Hook.Pause( FALSE );
 
 		break;
 	}
@@ -414,7 +420,7 @@ LRESULT CSetCaretBackGroundColorDlg::WindowProc(UINT message, WPARAM wParam, LPA
 	switch ( message )
 	{
 	case WM_APP_HCBT_SETFOCUS:
-		{
+		{	// フォーカス設定に関するフックメッセージ
 			TRACE2( "WM_APP_HCBT_SETFOCUS wParam / lParam: %08X / %08X\n", wParam, lParam );
 			HWND hWndCurrent = (HWND)wParam;
 			//HWND hWndPrevious = (HWND)lParam;
@@ -424,7 +430,7 @@ LRESULT CSetCaretBackGroundColorDlg::WindowProc(UINT message, WPARAM wParam, LPA
 		break;
 
 	case WM_APP_HCBT_MOVESIZE:
-		{
+		{	// ウィンドウ移動/リサイズに関するフックメッセージ
 			TRACE2( "WM_APP_HCBT_MOVESIZE wParam / lParam: %08X / %08X\n", wParam, lParam );
 			HWND hWndCurrent = (HWND)wParam;
 			//RECT *rect = (RECT*)lParam;
@@ -434,12 +440,14 @@ LRESULT CSetCaretBackGroundColorDlg::WindowProc(UINT message, WPARAM wParam, LPA
 		break;
 
 	case WM_APP_HKEYBOARD:
-		{
+		{	// キーボード押下に関するフックメッセージ
 			TRACE2( "WM_APP_HKEYBOARD wParam / lParam: %08X / %08X\n", wParam, lParam );
+			BOOL boAlt = ( lParam & 0x2000000 );
 			if (
 				( wParam == (WPARAM)VK_DBE_SBCSCHAR ) ||						// 全角/半角
 				( wParam == (WPARAM)VK_DBE_DBCSCHAR ) ||						// 同上
-				( ( wParam == (WPARAM)VK_KANJI ) || ( lParam & 0x2000000 ) ) )	// Alt+全角/半角
+				( ( wParam == (WPARAM)VK_KANJI ) || boAlt ) ||					// Alt+全角/半角
+				( wParam == (WPARAM)this->m_refConfig.m_BlinkVirtualKey ) )		// コンフィグ設定で指定されたキー
 			{
 				ResizeMainWindow( this->m_hWndTarget );
 			}
@@ -447,7 +455,7 @@ LRESULT CSetCaretBackGroundColorDlg::WindowProc(UINT message, WPARAM wParam, LPA
 		break;
 
 	case WM_APP_UPDATECOLOR:
-		{
+		{	// メインウィンドウ描画色更新要求
 			TRACE0( "WM_APP_UPDATECOLOR" );
 			this->UpdateWindowBrush();
 		}

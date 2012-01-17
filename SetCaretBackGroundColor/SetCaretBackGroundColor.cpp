@@ -254,6 +254,8 @@ BOOL CSetCaretBackGroundColorApp::GetModulePathFileName(LPCTSTR i_pName, CString
 BOOL CSetCaretBackGroundColorApp::ReadIniFile()
 {
 	CWinApp* theApp = ::AfxGetApp();
+
+	// IME ON/OFF時の色、透過率
 	BYTE a, r, g, b;
 	
 	a = ( theApp->GetProfileInt( "Open", "a", 128 ) & 0xFF );
@@ -270,18 +272,25 @@ BOOL CSetCaretBackGroundColorApp::ReadIniFile()
 	this->m_Config.m_BackGroundColorClose = RGB( r, g, b );
 	this->m_Config.m_TransparencyClose = a;
 
+	// 点滅時間、点滅回数
 	this->m_Config.m_FrameLength = ( theApp->GetProfileInt( "General", "FrameLength", 10 ) );
 	this->m_Config.m_BlinkCount = ( theApp->GetProfileInt( "General", "BlinkCount", 1 ) );
 
-	// 無視クラス名リストファイル
-	CString strIgnoreClassNameList;
-	strIgnoreClassNameList = theApp->GetProfileString( "Ignore", "ClassNameList", "IgnoreClassNameList.txt" );
+	// 手動点滅キーコード
+	this->m_Config.m_BlinkVirtualKey = ( theApp->GetProfileInt( "General", "BlinkKeyCode", VK_NONAME ) );
 
+	// 無視クラス名リストファイル
+	this->m_Config.m_IgnoreClassNameFile = theApp->GetProfileString( "Ignore", "ClassNameList", "IgnoreClassNameList.txt" );
+
+	// 無視クラス名リスト
 	CString		strPath;
-	GetModulePathFileName( strIgnoreClassNameList, strPath );
+	GetModulePathFileName( this->m_Config.m_IgnoreClassNameFile, strPath );
 
 	CStdioFile a_IgnoreClassNameListFile;
-	BOOL boResult = a_IgnoreClassNameListFile.Open( strPath, CFile::modeRead | CFile::shareDenyNone | CFile::typeText, NULL );
+	BOOL boResult = a_IgnoreClassNameListFile.Open(
+		strPath,
+		CFile::modeRead | CFile::shareDenyNone | CFile::typeText,
+		NULL );
 	if ( boResult )
 	{
 		CString strLine;
@@ -306,6 +315,8 @@ BOOL CSetCaretBackGroundColorApp::ReadIniFile()
 BOOL CSetCaretBackGroundColorApp::WriteIniFile()
 {
 	CWinApp* theApp = ::AfxGetApp();
+
+	// IME ON/OFF時の色、透過率
 	BYTE a, r, g, b;
 
 	a = (BYTE)( this->m_Config.m_TransparencyOpen );
@@ -326,18 +337,25 @@ BOOL CSetCaretBackGroundColorApp::WriteIniFile()
 	theApp->WriteProfileInt( "Close", "g", g );
 	theApp->WriteProfileInt( "Close", "b", b );
 	
+	// 点滅時間、点滅回数
 	theApp->WriteProfileInt( "General", "FrameLength", this->m_Config.m_FrameLength );
 	theApp->WriteProfileInt( "General", "BlinkCount", this->m_Config.m_BlinkCount );
 
-	// 無視クラス名リストファイル
-	CString strIgnoreClassNameList;
-	strIgnoreClassNameList = theApp->GetProfileString( "Ignore", "ClassNameList", "IgnoreClassNameList.txt" );
+	// 手動点滅キーコード
+	theApp->WriteProfileInt( "General", "BlinkKeyCode", this->m_Config.m_BlinkVirtualKey );
 
+	// 無視クラス名リストファイル
+	theApp->WriteProfileString(  "Ignore", "ClassNameList", this->m_Config.m_IgnoreClassNameFile );
+
+	// 無視クラス名リスト
 	CString		strPath;
-	GetModulePathFileName( strIgnoreClassNameList, strPath );
+	GetModulePathFileName( this->m_Config.m_IgnoreClassNameFile, strPath );
 
 	CStdioFile a_IgnoreClassNameListFile;
-	BOOL boResult = a_IgnoreClassNameListFile.Open( strPath, CFile::modeWrite | CFile::modeCreate | CFile::shareDenyNone | CFile::typeText, NULL );
+	BOOL boResult = a_IgnoreClassNameListFile.Open(
+		strPath,
+		CFile::modeWrite | CFile::modeCreate | CFile::shareDenyNone | CFile::typeText,
+		NULL );
 	if ( boResult )
 	{
 		int iCount = this->m_Config.m_IgnoreClassName.GetSize();
