@@ -22,7 +22,7 @@ public:
 // ダイアログ データ
 	//{{AFX_DATA(CConfigDialog)
 	enum { IDD = IDD_CONFIGDIALOG };
-	CHotKeyCtrl	m_hkCtrlManualBlink;
+	CComboBox	m_comboboxManualBlink;
 	CSliderCtrl	m_SliderBlinkFrameLength;
 	CStatic	m_StaticColorClose;
 	CStatic	m_StaticColorOpen;
@@ -62,7 +62,7 @@ protected:
 	afx_msg void OnReleasedcaptureSliderBlinkFadeLength(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnReleasedcaptureSliderBlinkCount(NMHDR* pNMHDR, LRESULT* pResult);
 	afx_msg void OnButtonClose();
-	afx_msg void OnButtonConfigManualBlinkSet();
+	afx_msg void OnSelchangeComboConfigManualBlinkKey();
 	//}}AFX_MSG
 	DECLARE_MESSAGE_MAP()
 

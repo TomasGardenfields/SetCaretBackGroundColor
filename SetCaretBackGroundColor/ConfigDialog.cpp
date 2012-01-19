@@ -38,7 +38,7 @@ void CConfigDialog::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	//{{AFX_DATA_MAP(CConfigDialog)
-	DDX_Control(pDX, IDC_HOTKEY_CONFIG_MANUAL_BLINK, m_hkCtrlManualBlink);
+	DDX_Control(pDX, IDC_COMBO_CONFIG_MANUAL_BLINK_KEY, m_comboboxManualBlink);
 	DDX_Control(pDX, IDC_SLIDER_BLINK_FADE_LENGTH, m_SliderBlinkFrameLength);
 	DDX_Control(pDX, IDC_STATIC_PICTURE_COLOR_CLOSE, m_StaticColorClose);
 	DDX_Control(pDX, IDC_STATIC_PICTURE_COLOR_OPEN, m_StaticColorOpen);
@@ -65,7 +65,7 @@ BEGIN_MESSAGE_MAP(CConfigDialog, CDialog)
 	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLIDER_BLINK_FADE_LENGTH, OnReleasedcaptureSliderBlinkFadeLength)
 	ON_NOTIFY(NM_RELEASEDCAPTURE, IDC_SLIDER_BLINK_COUNT, OnReleasedcaptureSliderBlinkCount)
 	ON_BN_CLICKED(IDC_BUTTON_CLOSE, OnButtonClose)
-	ON_BN_CLICKED(IDC_BUTTON_CONFIG_MANUAL_BLINK_SET, OnButtonConfigManualBlinkSet)
+	ON_CBN_SELCHANGE(IDC_COMBO_CONFIG_MANUAL_BLINK_KEY, OnSelchangeComboConfigManualBlinkKey)
 	//}}AFX_MSG_MAP
 END_MESSAGE_MAP()
 
@@ -101,11 +101,49 @@ BOOL CConfigDialog::OnInitDialog()
 	this->m_strColorClose.Format( "%d", this->m_refConfig.m_TransparencyClose );
 	this->m_ColorBrushClose.CreateSolidBrush( this->m_refConfig.m_BackGroundColorClose );
 
-	this->m_hkCtrlManualBlink.SetHotKey( this->m_refConfig.m_BlinkVirtualKey, NULL );
+	// 手動点滅キーリスト作成
+	this->m_comboboxManualBlink.ResetContent();
 
-	this->m_hkCtrlManualBlink.SetRules(
-		HKCOMB_A | HKCOMB_C | HKCOMB_CA | HKCOMB_S | HKCOMB_SA | HKCOMB_SC | HKCOMB_SCA,
-		HOTKEYF_EXT );
+	CStdioFile a_VirtualKeyCodeFile;
+	BOOL boResult = a_VirtualKeyCodeFile.Open(
+		"VirtualKeyCodeList.txt",
+		CFile::modeRead | CFile::shareDenyNone | CFile::typeText,
+		NULL );
+	if ( boResult )
+	{
+		CString strLine;
+		BOOL boReadResult;
+
+		while( NULL != ( boReadResult = a_VirtualKeyCodeFile.ReadString( strLine ) ) )
+		{
+			// 空白の項目を無視する
+			if ( strLine == "" )
+			{
+				continue;
+			}
+			
+			// タブ区切り前後で分割
+			CString strCode, strKeyName;
+			int iTabIndex = strLine.Find( "\t", 0 );
+
+			strCode = strLine.Left( iTabIndex );
+			strKeyName = strLine.Mid( iTabIndex + 1 );
+
+			// キーコード部分を数値へ変換→リストへ追加
+			unsigned long ulCode = ::strtoul( strCode, NULL, 10 );
+			
+			int iComboIndex = this->m_comboboxManualBlink.AddString( strKeyName );
+			this->m_comboboxManualBlink.SetItemData( iComboIndex, ulCode );
+
+			// キーコードが一致したらその項目を選択状態にする
+			if ( this->m_refConfig.m_BlinkVirtualKey == ulCode )
+			{
+				this->m_comboboxManualBlink.SetCurSel( iComboIndex );
+			}
+		}
+		
+		a_VirtualKeyCodeFile.Close();
+	}
 
 	this->UpdateData( FALSE );
 	return TRUE;  // コントロールにフォーカスを設定しないとき、戻り値は TRUE となります
@@ -123,8 +161,7 @@ HBRUSH CConfigDialog::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 {
 	HBRUSH hbr = CDialog::OnCtlColor(pDC, pWnd, nCtlColor);
 	
-	// TODO: この位置で DC のアトリビュートを変更してください
-	
+	// IME On/Off時表示色描画用ブラシ設定
 	if ( nCtlColor =  CTLCOLOR_STATIC )
 	{
 		if ( pWnd->m_hWnd == this->m_StaticColorOpen.m_hWnd )
@@ -152,8 +189,6 @@ void CConfigDialog::OnOK()
 
 void CConfigDialog::OnCancel() 
 {
-	// コンフィグを変更前に戻す
-//	this->m_CurrentConfig.Copy( this->m_PrevConfig );
 	// OnCancelを呼ばない(Esc押下時対応)
 //	CDialog::OnCancel();
 
@@ -267,18 +302,14 @@ void CConfigDialog::OnReleasedcaptureSliderBlinkCount(NMHDR* pNMHDR, LRESULT* pR
 	*pResult = 0;
 }
 
-
-void CConfigDialog::OnButtonConfigManualBlinkSet() 
+void CConfigDialog::OnSelchangeComboConfigManualBlinkKey() 
 {
-	// 仮想キーコード/修飾キーを取得しコンフィグへ設定
-	// イベントハンドラ側で修飾キー押下有無に対応できない為、仮想キーコードのみ設定
-
+	// コンボボックスの選択項目に応じて手動点滅用キーコードを変更
 	this->UpdateData( TRUE );
 
-	WORD wVirtualkey;
-	WORD wModKey;
-
-	this->m_hkCtrlManualBlink.GetHotKey( wVirtualkey, wModKey );
-
-	this->m_refConfig.m_BlinkVirtualKey = wVirtualkey;
+	int iIndex = this->m_comboboxManualBlink.GetCurSel();
+	if ( 0 <= iIndex && iIndex < this->m_comboboxManualBlink.GetCount() )
+	{
+		this->m_refConfig.m_BlinkVirtualKey = this->m_comboboxManualBlink.GetItemData( iIndex );
+	}
 }

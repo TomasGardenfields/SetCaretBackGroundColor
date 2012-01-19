@@ -447,7 +447,7 @@ LRESULT CSetCaretBackGroundColorDlg::WindowProc(UINT message, WPARAM wParam, LPA
 				( wParam == (WPARAM)VK_DBE_SBCSCHAR ) ||						// 全角/半角
 				( wParam == (WPARAM)VK_DBE_DBCSCHAR ) ||						// 同上
 				( ( wParam == (WPARAM)VK_KANJI ) || boAlt ) ||					// Alt+全角/半角
-				( wParam == (WPARAM)this->m_refConfig.m_BlinkVirtualKey ) )		// コンフィグ設定で指定されたキー
+				( wParam == (WPARAM)this->m_refConfig.m_BlinkVirtualKey ) )		// コンフィグ設定で指定された手動点滅キー
 			{
 				ResizeMainWindow( this->m_hWndTarget );
 			}
